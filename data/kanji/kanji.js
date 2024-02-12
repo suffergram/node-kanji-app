@@ -1,4 +1,4 @@
-module.exports = [
+const kanji = [
   {
     id: 0,
     kanji: "日",
@@ -9912,3 +9912,7 @@ module.exports = [
     meaning: "visit; ask; inquire; question",
   }
 ];
+
+module.exports = {
+  kanji
+};

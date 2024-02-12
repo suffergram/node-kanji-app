@@ -1,17 +1,15 @@
 // external modules
 
 const express = require('express');
-const fs = require('fs').promises;
-const path = require('path');
-
+const { kanji } = require('./data/kanji/kanji');
+const { vocab } = require('./data/vocab/vocab');
+const { hiragana, katakana } = require('./data/kana/kana');
+const { shuffleArray } = require('./services/shuffle-array');
 
 // app variables
 
 const app = express();
 const port = 4000;
-
-const kanji = require('./data/kanji/kanji');
-const vocab = require('./data/vocab/vocab');
 
 
 // app configuration
@@ -27,11 +25,23 @@ app.get('/', (req, res) => {
   /----------------------------------------------/
   
   use  /kanji      to get all kanji
+  ?jlpt            to get kanji by jlpt level (1-5)
+  ?kanji           to get a specific kanji
+  ?limit           to set the amount of items
+  ?random          to randomize the result (true, false)
+
   use  /kanji/:id  to get kanji with a specific id
 
   /----------------------------------------------/
 
   use  /vocab      to get all vocab
+  ?jlpt            to get word by jlpt level (1-5)
+  ?word            to get a specific word
+  ?kanji           to get all vocab that includes the kanji
+  ?kanjiJlpt       to get vocab by kanji Jlpt level (1-5)
+  ?limit           to set the amount of items
+  ?random          to randomize the result (true, false)
+
   use  /vocab/:id  to get vocab with a specific id
 
   /----------------------------------------------/
@@ -40,22 +50,24 @@ app.get('/', (req, res) => {
 
 app.get('/kanji', (req, res) => {
   try {
-    let content = kanji;
+    let content = [...kanji];
 
     if (req.query) {
-      console.log(req.query);
 
-      if (req.query.jlpt) {
-        const level = parseInt(req.query.jlpt);
-
-        content = content.filter(item => item.jlpt <= level);
+      if (req.query.random && req.query.random === 'true') {
+        content = shuffleArray(content);
       }
 
-      if (req.query.kanji) {
-        const kanji = req.query.kanji;
+      if (req.query.jlpt && isFinite(Number(req.query.jlpt)) && Number(req.query.jlpt) > 0)
+        content = content.filter(item => item.jlpt >= Number(req.query.jlpt));
 
-        content = content.filter(item => item.kanji === kanji);
+      if (req.query.kanji)
+        content = content.filter(item => item.kanji === req.query.kanji);
+
+      if (req.query.limit && isFinite(Number(req.query.limit)) && Number(req.query.limit) > 0) {
+        content = content.slice(0, Number(req.query.limit));
       }
+
     }
 
     if (content.length === 1) content = content[0];
@@ -88,11 +100,47 @@ app.get('/kanji/:id', (req, res) => {
 
 app.get('/vocab', (req, res) => {
   try {
-    let content = vocab;
+    let content = [...vocab];
 
     if (req.query) {
 
+      // ?limit=5&options=4
+
+      if (req.query.random && req.query.random === 'true') {
+        content = shuffleArray(content);
+      }
+
+      if (req.query.jlpt && isFinite(Number(req.query.jlpt)) && Number(req.query.jlpt) > 0) {
+        content = content.filter(item => item.jlpt >= Number(req.query.jlpt));
+      }
+
+      if (req.query.kanjiJlpt && isFinite(Number(req.query.kanjiJlpt)) && Number(req.query.kanjiJlpt) > 0) {
+        const kana = [...hiragana.map(item => item.kana), ...katakana.map(item => item.kana)];
+        const kanjiByJlpt = kanji.filter(item => item.jlpt >= req.query.kanjiJlpt).map(item => item.kanji).concat(kana);
+        content = content.filter(item => item.kanji.split('').every(kana => kanjiByJlpt.includes(kana)));
+      }
+
+      if (req.query.word) {
+        content = content.filter(item => item.kanji === req.query.word);
+      }
+
+      if (req.query.kanji) {
+        content = content.filter(item => item.kanji.includes(req.query.kanji));
+      }
+
+      if (req.query.limit && isFinite(Number(req.query.limit)) && Number(req.query.limit) > 0) {
+        content = content.slice(0, Number(req.query.limit));
+      }
+
+
+      if (req.query.options && isFinite(Number(req.query.options)) && Number(req.query.options) > 1) {
+        // ?options=4 content = getOptions(content);
+      }
+
     }
+
+    if (content.length === 1) content = content[0];
+    if (content.length === 0) throw new Error('Not found');
 
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(200);

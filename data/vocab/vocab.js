@@ -1,4 +1,4 @@
-module.exports = [
+const vocab = [
   {
     id: 0,
     jlpt: 5,
@@ -10565,7 +10565,11 @@ module.exports = [
     jlpt: 2,
     kanji: '材木',
     meaning: 'lumber; timber',
-    kana: 'ざいも',
+    kana: 'ざいもく',
     romaji: 'zaimoku',
   },
 ];
+
+module.exports = {
+  vocab
+};
