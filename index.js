@@ -21,9 +21,9 @@ const port = 4000;
 app.get('/', (req, res) => {
   res.writeHead(200);
   res.end(`
-               This is Kanji App Api
+                          This is the Kanji App Api
 
-  /----------------------------------------------/
+  /--------------------------------------------------------------------------/
   
   use  /kanji      to get all kanji
   ?jlpt            to get kanji by jlpt level (1-5)
@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
 
   use  /kanji/:id  to get kanji with a specific id
 
-  /----------------------------------------------/
+  /--------------------------------------------------------------------------/
 
   use  /vocab      to get all vocab
   ?jlpt            to get word by jlpt level (1-5)
@@ -42,10 +42,11 @@ app.get('/', (req, res) => {
   ?kanjiJlpt       to get vocab by kanji Jlpt level (1-5)
   ?limit           to set the amount of items
   ?random          to randomize the result (true, false)
+  ?options         to get the data in special format with question and options
 
   use  /vocab/:id  to get vocab with a specific id
 
-  /----------------------------------------------/
+  /--------------------------------------------------------------------------/
   `);
 });
 
@@ -105,8 +106,6 @@ app.get('/vocab', (req, res) => {
 
     if (req.query) {
 
-      // ?limit=5&options=4
-
       if (req.query.random && req.query.random === 'true') {
         content = shuffleArray(content);
       }
@@ -134,7 +133,6 @@ app.get('/vocab', (req, res) => {
       }
 
       if (req.query.options && isFinite(Number(req.query.options)) && Number(req.query.options) > 1) {
-        // ?options=4 content = getOptions(content);
         content = getOptions(content, req.query.options);
       }
 
