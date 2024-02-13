@@ -5,6 +5,7 @@ const { kanji } = require('./data/kanji/kanji');
 const { vocab } = require('./data/vocab/vocab');
 const { hiragana, katakana } = require('./data/kana/kana');
 const { shuffleArray } = require('./services/shuffle-array');
+const { getOptions } = require('./services/get-options');
 
 // app variables
 
@@ -132,9 +133,9 @@ app.get('/vocab', (req, res) => {
         content = content.slice(0, Number(req.query.limit));
       }
 
-
       if (req.query.options && isFinite(Number(req.query.options)) && Number(req.query.options) > 1) {
         // ?options=4 content = getOptions(content);
+        content = getOptions(content, req.query.options);
       }
 
     }
