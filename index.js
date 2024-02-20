@@ -1,11 +1,11 @@
 // external modules
 
 const express = require('express');
-const { kanji } = require('./data/kanji/kanji');
-const { vocab } = require('./data/vocab/vocab');
-const { hiragana, katakana } = require('./data/kana/kana');
-const { shuffleArray } = require('./services/shuffle-array');
-const { getOptions } = require('./services/get-options');
+const { kanji } = require('./src/data/kanji/kanji');
+const { vocab } = require('./src/data/vocab/vocab');
+const { hiragana, katakana } = require('./src/data/kana/kana');
+const { shuffleArray } = require('./src/services/shuffle-array');
+const { getOptions } = require('./src/services/get-options');
 
 // app variables
 
@@ -76,6 +76,7 @@ app.get('/kanji', (req, res) => {
     if (content.length === 0) throw new Error('Not found');
 
     res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.writeHead(200);
     res.end(JSON.stringify(content));
   } catch (error) {
@@ -92,6 +93,7 @@ app.get('/kanji/:id', (req, res) => {
     if (!content) throw new Error('Not found');
 
     res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.writeHead(200);
     res.end(JSON.stringify(content));
   } catch (error) {
@@ -142,6 +144,7 @@ app.get('/vocab', (req, res) => {
     if (content.length === 0) throw new Error('Not found');
 
     res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.writeHead(200);
     res.end(JSON.stringify(content));
   } catch (error) {
@@ -158,6 +161,7 @@ app.get('/vocab/:id', (req, res) => {
     if (!content) throw new Error('Not found');
 
     res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.writeHead(200);
     res.end(JSON.stringify(content));
   } catch (error) {
