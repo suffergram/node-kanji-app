@@ -1,5 +1,6 @@
 const { vocab } = require('../data/vocab/vocab');
 const { kanji } = require('../data/kanji/kanji');
+const { KANJI_DIFF, KANA_DIFF } = require('../constants/constants');
 
 function getOptions(array, amount = 4) {
   const resultArray = [...array].map(item => {
@@ -22,7 +23,9 @@ function getOptions(array, amount = 4) {
 
     while (current.options.length < amount - 1) {
       let filteredVocab = [...vocab].filter(el =>
-        Math.abs(el.kanji.length - current.question.kanji.length) <= 2
+        Math.abs(el.kanji.length - current.question.kanji.length) <= KANJI_DIFF
+        && el.kana !== current.question.kana
+        && Math.abs(el.kana.length - current.question.kana.length) <= KANA_DIFF
         && el.kanji.split('').some(it => item.kanji.includes(it))
         && el.id !== current.question.id
         && current.options.every(it => it.id !== el.id)
@@ -32,6 +35,8 @@ function getOptions(array, amount = 4) {
       if (filteredVocab.length === 0) {
         filteredVocab = [...vocab].filter(el =>
           el.kanji.length === current.question.kanji.length
+          && el.kana !== current.question.kana
+          && el.kana.length === current.question.kana.length
           && current.question.id
           && current.options.every(it => it.id !== el.id)
           && current.question.jlpt - 1

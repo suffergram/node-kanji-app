@@ -2470,7 +2470,7 @@ const vocab = [
     id: 308,
     jlpt: 5,
     kanji: '鳴く',
-    meaning: 'animal noise. to chirp',
+    meaning: 'to chirp',
     kana: 'なく',
     romaji: 'naku',
   },
