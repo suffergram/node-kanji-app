@@ -7,24 +7,22 @@ function getOptions(array, amount = 4) {
     const current = {
       question: item,
       options: [],
-      kanjiLevels: [],
+      kanji: [],
     };
 
-    const levels = new Set();
     for (let el of item.kanji.split('')) {
       try {
-        const level = kanji.filter(curr => curr.kanji === el)[0].jlpt;
-        levels.add(level);
+        const foundKanji = kanji.filter(curr => curr.kanji === el)[0];
+        foundKanji && current.kanji.push(foundKanji);
       } catch (error) {
         continue;
       }
     }
-    current.kanjiLevels.push(...levels);
 
     while (current.options.length < amount - 1) {
       let filteredVocab = [...vocab].filter(el =>
         Math.abs(el.kanji.length - current.question.kanji.length) <= KANJI_DIFF
-        && el.kana !== current.question.kana
+        && current.question.kana.split('; ').some(it => it === el.kana)
         && Math.abs(el.kana.length - current.question.kana.length) <= KANA_DIFF
         && el.kanji.split('').some(it => item.kanji.includes(it))
         && el.id !== current.question.id
@@ -36,7 +34,7 @@ function getOptions(array, amount = 4) {
         filteredVocab = [...vocab].filter(el =>
           el.kanji.length === current.question.kanji.length
           && el.kana !== current.question.kana
-          && el.kana.length === current.question.kana.length
+          && current.question.kana.split('; ').some(it => it.length === el.kana.length)
           && current.question.id
           && current.options.every(it => it.id !== el.id)
           && current.question.jlpt - 1

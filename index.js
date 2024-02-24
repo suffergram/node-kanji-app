@@ -1,6 +1,7 @@
 // external modules
 
 const express = require('express');
+const cors = require('cors');
 const { kanji } = require('./src/data/kanji/kanji');
 const { vocab } = require('./src/data/vocab/vocab');
 const { hiragana, katakana } = require('./src/data/kana/kana');
@@ -15,6 +16,7 @@ const port = 4000;
 
 // app configuration
 
+app.use(cors());
 
 // routes definitions
 
@@ -56,15 +58,19 @@ app.get('/kanji', (req, res) => {
 
     if (req.query) {
 
+      if (req.query.kanji) {
+        content = [];
+        for (let item of req.query.kanji) {
+          content.push(...kanji.filter(k => k.kanji === item));
+        }
+      }
+
       if (req.query.random && req.query.random === 'true') {
         content = shuffleArray(content);
       }
 
       if (req.query.jlpt && isFinite(Number(req.query.jlpt)) && Number(req.query.jlpt) > 0)
         content = content.filter(item => item.jlpt >= Number(req.query.jlpt));
-
-      if (req.query.kanji)
-        content = content.filter(item => item.kanji === req.query.kanji);
 
       if (req.query.limit && isFinite(Number(req.query.limit)) && Number(req.query.limit) > 0) {
         content = content.slice(0, Number(req.query.limit));
