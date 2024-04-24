@@ -23,32 +23,36 @@ app.use(cors());
 app.get('/', (req, res) => {
   res.writeHead(200);
   res.end(`
-                          This is the Kanji App Api
+                            This is the Kanji App Api
 
-  /--------------------------------------------------------------------------/
+  /-------------------------------------------------------------------------------/
   
-  use  /kanji      to get all kanji
-  ?jlpt            to get kanji by jlpt level (1-5)
-  ?kanji           to get a specific kanji
-  ?limit           to set the amount of items
-  ?random          to randomize the result (true, false)
+  use  /kanji           to get all kanji
+  ?jlpt                 to get kanji by jlpt level (1-5)
+  ?kanji                to get a specific kanji
+  ?limit                to set the amount of items
+  ?random               to randomize the result (true, false)
 
-  use  /kanji/:id  to get kanji with a specific id
+  use  /kanji/:id       to get kanji with a specific id
 
-  /--------------------------------------------------------------------------/
+  /-------------------------------------------------------------------------------/
 
-  use  /vocab      to get all vocab
-  ?jlpt            to get word by jlpt level (1-5)
-  ?word            to get a specific word
-  ?kanji           to get all vocab that includes the kanji
-  ?kanjiJlpt       to get vocab by kanji Jlpt level (1-5)
-  ?limit           to set the amount of items
-  ?random          to randomize the result (true, false)
-  ?options         to get the data in special format with question and options
+  use  /vocab           to get all vocab
+  ?jlpt                 to get word by jlpt level (1-5)
+  ?word                 to get a specific word
+  ?kanji                to get all vocab that includes the kanji
+  ?kanjiJlpt            to get vocab by kanji Jlpt level (1-5)
+  ?limit                to set the amount of items
+  ?random               to randomize the result (true, false)
+  ?options              to get the data in special format with question and options
 
-  use  /vocab/:id  to get vocab with a specific id
+  use  /vocab/:id       to get vocab with a specific id
 
-  /--------------------------------------------------------------------------/
+  /-------------------------------------------------------------------------------/
+
+  use  /search/:query   to get an object of search results for the :query value
+
+  /-------------------------------------------------------------------------------/
   `);
 });
 
@@ -165,6 +169,45 @@ app.get('/vocab/:id', (req, res) => {
     const content = vocab.filter(item => item.id === id)[0];
 
     if (!content) throw new Error('Not found');
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.writeHead(200);
+    res.end(JSON.stringify(content));
+  } catch (error) {
+    res.writeHead(404);
+    res.end(error.message);
+  }
+});
+
+app.get('/search/:query', (req, res) => {
+  try {
+    const query = req.params.query;
+
+    const search = query.toLowerCase();
+    const regex = /[()\.\s]/g;
+
+    const kanjiResult = [...kanji].filter(item =>
+      item.kanji.includes(search) ||
+      item.kun.replace(regex, '').includes(search) ||
+      item.on.replace(regex, '').includes(search) ||
+      item.meaning.toLowerCase().includes(search) ||
+      item.romajiKun.toLowerCase().replace(regex, '').includes(search) ||
+      item.romajiOn.toLowerCase().replace(regex, '').includes(search)
+    );
+
+    const vocabResult = [...vocab].filter(item =>
+      item.kanji.includes(search) ||
+      item.kana.replace(regex, '').includes(search) ||
+      item.meaning.toLowerCase().includes(search) ||
+      item.romaji.toLowerCase().includes(search)
+    );
+
+    const content = {};
+    kanjiResult.length > 0 && (content.kanji = kanjiResult);
+    vocabResult.length > 0 && (content.vocab = vocabResult);
+
+    if (!content.kanji && !content.vocab) throw new Error('Not found');
 
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');

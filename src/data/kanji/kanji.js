@@ -1046,7 +1046,7 @@ const kanji = [
     romajiOn: "gen; gon",
     on: "ゲン; ゴン",
     romajiKun: "i(u); koto",
-    kun: "い（う）; こと",
+    kun: "い(う); こと",
     meaning: "say; word",
   },
   {
