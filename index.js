@@ -194,7 +194,10 @@ app.get('/search/:query', (req, res) => {
       item.meaning.toLowerCase().includes(search) ||
       item.romajiKun.toLowerCase().replace(regex, '').includes(search) ||
       item.romajiOn.toLowerCase().replace(regex, '').includes(search)
-    );
+    ).map(kanji => ({
+      ...kanji,
+      ref: vocab.filter(item => item.kanji.includes(kanji.kanji))
+    }));
 
     const vocabResult = [...vocab].filter(item =>
       item.kanji.includes(search) ||
